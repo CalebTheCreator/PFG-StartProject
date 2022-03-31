@@ -94,9 +94,11 @@ Scene::Scene()
 
 	glm::vec3 initial_position = glm::vec3(0.0f, 5.0f, 0.0f);
 	glm::vec3 initial_scale = glm::vec3(0.3f, 0.3f, 0.3f);
-
+	float mass = 2.0f;
+	_physics_object->SetMass(mass);
 	_physics_object->SetPosition(initial_position);
 	_physics_object->SetScale(initial_scale);
+	_physics_object->SetBoundingRadius(0.3f);
 
 	/**_new_Sphere->SetMesh(modelMesh);
 	_new_Sphere->SetPosition(5.0f, 5.0f, 0.0f);
