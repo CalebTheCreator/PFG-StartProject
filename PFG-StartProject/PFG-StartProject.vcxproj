@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Rigidbody.cpp" />
     <ClCompile Include="src\Application.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\DynamicObject.cpp" />
@@ -159,10 +160,12 @@
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\PhysicsFunctions.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Rigidbody.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\DynamicObject.h" />
@@ -172,6 +175,7 @@
     <ClInclude Include="src\KinematicsObject.h" />
     <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\PhysicsFunctions.h" />
     <ClInclude Include="src\Scene.h" />
     <ClInclude Include="src\Utility.h" />
     <ClInclude Include="src\wglew.h" />

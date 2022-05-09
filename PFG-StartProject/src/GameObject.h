@@ -50,6 +50,9 @@ public:
 	* @param float sY y scale
 	* @param float sZ z scale
 	*/
+
+	void SetRotationOnAxis(glm::vec3 axis);
+
 	void SetScale(float sX, float sY, float sZ) { _scale.x = sX; _scale.y = sY; _scale.z = sZ; }
 	
 	/** Function for getting position of the game object

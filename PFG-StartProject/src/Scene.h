@@ -47,6 +47,8 @@ private:
 	/** A physics object
 	*/
 	DynamicObject* _physics_object;
+
+	DynamicObject* _second_physics_object;
 	/** An example game level in the scene
 	*/
 
@@ -56,6 +58,9 @@ private:
 	GameObject* _level; 
 	/** The main camera in the scene 
 	*/
+
+	GameObject* Wall1;
+
 	Camera* _camera; 
 
 	/**The position for a light that lits the scene

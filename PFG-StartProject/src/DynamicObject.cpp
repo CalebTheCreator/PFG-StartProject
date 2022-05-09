@@ -1,6 +1,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
+#include <iostream>
 
 #include "DynamicObject.h"
 #include "Utility.h"
@@ -14,14 +15,54 @@ DynamicObject::DynamicObject()
 
 	_scale = glm::vec3(0.0f, 0.0f, 0.0f);
 	_start = false;
+
+	_torque = glm::vec3(0.0f, 0.0f, 0.0f);
+	_angular_velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+	_angular_momentum = glm::vec3(0.0f, 0.0f, 0.0f);
+
+	_R = glm::mat3	(1.0f, 0.0f, 0.0f,
+					0.0f, 1.0f, 0.0f,
+					0.0f, 0.0f, 1.0f);
+
+	_rotQuat = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 }
 
 DynamicObject::~DynamicObject()
 {
 }
 
-void DynamicObject::Update(float deltaTs)
+
+
+void DynamicObject::StartSimulation(bool start)
 {
+	_start = start;
+
+	_rotQuat = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
+	glm::mat3 body_inertia;
+
+	body_inertia = glm::mat3(
+		(2.0f / 5.0f) * _mass * std::pow(_bRadius, 2), 0, 0,
+		0, (2.0f / 5.0) * _mass * std::pow(_bRadius, 2), 0,
+		0, 0, (2.0f / 5.0f) * _mass * std::pow(_bRadius, 2)
+	);
+
+	_body_inertia_tensor_inverse = glm::inverse(body_inertia);
+
+	ComputeInverseIntertiaTensor();
+
+	_angular_velocity = _inertia_tensor_inverse * _angular_momentum;
+
+}
+
+void DynamicObject::ComputeInverseIntertiaTensor()
+{
+	_inertia_tensor_inverse = _R * _body_inertia_tensor_inverse * glm::transpose(_R);
+}
+
+void DynamicObject::Update(GameObject* otherObject, float deltaTs)
+{
+	
 	
 	if (_start == true)
 	{
@@ -37,35 +78,7 @@ void DynamicObject::Update(float deltaTs)
 
 		AddForce(gravityForce);
 
-		float radius = GetBoundingRadius();
-		float elasticity = 0.8f;
-		glm::vec3 position = GetPosition();
-		glm::vec3 floor_normal(0.0f, 1.0f, 0.0f);
-		glm::vec3 point_on_floor(0.0f, 0.0f, 0.0f);
-		float d = PFG::DistanceToPlane(floor_normal, position, point_on_floor);
-
-		//use DistanceToPlane to detect collision
-
-		//step 3: compute collision response
-		//if (_position.y <= radius) //this is a temp
-		if(d <= radius)
-		{
-			_position.y = radius;
-			//fake a collisiton calculation for now
-			//glm::vec3 bounceForce = glm::vec3(0.0f, 150.0f, 0.0f);
-			
-			glm::vec3 floor_Velocity = glm::vec3(0.0f, 0.0f, 0.0f);
-			
-			float bounce = -(1 + elasticity) * glm::dot(_velocity - floor_Velocity, floor_normal) / (1 / _mass);
-			glm::vec3 bounceForce = bounce * floor_normal;
-			_velocity += bounceForce / _mass;
-			//AddForce(bounceForce / deltaTs);
-			// Add contact force exerted from floor to the sphere
-			glm::vec3 contactForce = glm::vec3(0.0f, _mass * 9.8f, 0.0f);
-			AddForce(contactForce);
-
-
-		}
+		CollisionResponses(otherObject, deltaTs);
 
 		//step 4: One step time integration for simulation update:
 		//Euler(deltaTs);
@@ -74,6 +87,42 @@ void DynamicObject::Update(float deltaTs)
 		Verlet(deltaTs);
 	}
 	UpdateModelMatrix();
+}
+
+
+
+void DynamicObject::CollisionResponses(GameObject* otherObject, float DeltaTs)
+{
+	float radius = GetBoundingRadius();
+	float elasticity = 0.8f;
+	glm::vec3 position = GetPosition();
+	glm::vec3 floor_normal(0.0f, 1.0f, 0.0f);
+	glm::vec3 point_on_floor(0.0f, 0.0f, 0.0f);
+	float d = PFG::DistanceToPlane(floor_normal, position, point_on_floor);
+
+	//use DistanceToPlane to detect collision
+
+	//step 3: compute collision response
+	//if (_position.y <= radius) //this is a temp
+	if (d <= radius)
+	{
+		_position.y = radius;
+		//fake a collisiton calculation for now
+		//glm::vec3 bounceForce = glm::vec3(0.0f, 150.0f, 0.0f);
+
+		glm::vec3 floor_Velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+
+		float bounce = -(1 + elasticity) * glm::dot(_velocity - floor_Velocity, floor_normal) / (1 / _mass);
+		glm::vec3 bounceForce = bounce * floor_normal;
+		_velocity += bounceForce / _mass;
+		//AddForce(bounceForce / deltaTs);
+		// Add contact force exerted from floor to the sphere
+		glm::vec3 contactForce = glm::vec3(0.0f, _mass * 9.8f, 0.0f);
+		AddForce(contactForce);
+	}
+
+	//do collision response based on type of object
+	//e.g. if(otherObject == sphere) {PFG::SphereToSphere}
 }
 
 void DynamicObject::Euler(float deltaTs)

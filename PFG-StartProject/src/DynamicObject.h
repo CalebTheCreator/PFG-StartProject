@@ -1,5 +1,6 @@
 #ifndef _DynamicObject_H_
 #define _DynamicObject_H
+#include <glm/gtc/quaternion.hpp>
 
 #include "GameObject.h"
 
@@ -30,18 +31,30 @@ public:
 	*   next procedure.
 	*   @param float deltaTs simulation time step length
 	*/
-	virtual void Update(float deltaTs);
+
+	virtual void Update(GameObject* otherObject, float deltaTs);
+
+	void StartSimulation(bool start);
 
 	/** Add force that acts on the object to the total force for physics computation
 	*  
 	*   @param const glm::vec3 force 
 	*/
-	void AddForce(const glm::vec3 force) { _force += force; }
-	void ClearForces() { _force = glm::vec3(0.0f, 0.0f, 0.0f); }
+	
 	/** Numerical integration function to compute the current velocity and the current position
 	* based on the velocity and the position of the previous time step
 	*   @param float deltaTs simulation time step length
 	*/
+	void AddForce(const glm::vec3 force) { _force += force; }
+	void ClearForces() { _force = glm::vec3(0.0f, 0.0f, 0.0f); }
+	void AddTorque(const glm::vec3 torque) { _torque += torque; }
+	void ClearTorque() { _torque = glm::vec3(0, 0, 0); }
+	void ComputeInverseIntertiaTensor();
+
+
+	void CollisionResponses(GameObject* otherObject, float DeltaTs);
+
+
 	 void Euler(float deltaTs);
 	 void RungeKutta2(float deltaTs);
 	 void RungeKutta4(float deltaTs);
@@ -95,7 +108,7 @@ public:
 
 	/** A boolean variable to control the start of the simulation This matrix is the camera's lens
 	*/
-	void StartSimulation(bool start) { _start = start; }
+	//void StartSimulation(bool start) { _start = start; }
 
 private:
 
@@ -129,11 +142,33 @@ private:
 	glm::vec3 _scale;
 	/** Orientation of the object
 	*/
+
 	glm::mat4 _orientation;
+
+	glm::vec3 _torque;
+
+	glm::vec3 _angular_velocity;
+
+	glm::vec3 _angular_momentum;
+
+	glm::mat3 _inertia_tensor_inverse;
+
+	glm::mat3 _body_inertia_tensor_inverse;
+
+	glm::mat3 _R;
+
+	glm::quat _rotQuat;
+
+	float lerp(float a, float b, float t)
+	{
+		return a + (b - a) * t;
+	}
 
 	/** A boolean variable to control the start of the simulation This matrix is the camera's lens
 	*/
 	bool _start;
+
+	bool _stopped;
 
 	glm::vec3 previous_position;
 };
