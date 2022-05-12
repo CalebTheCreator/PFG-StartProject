@@ -42,6 +42,8 @@ public:
 	*/
 	void Draw();
 
+	void DoCollisions();
+
 private:
 
 	/** A physics object
@@ -49,6 +51,10 @@ private:
 	DynamicObject* _physics_object;
 
 	DynamicObject* _second_physics_object;
+
+	DynamicObject* _third_physics_object;
+
+	DynamicObject* _fourth_physics_object;
 	/** An example game level in the scene
 	*/
 
@@ -58,8 +64,6 @@ private:
 	GameObject* _level; 
 	/** The main camera in the scene 
 	*/
-
-	GameObject* Wall1;
 
 	Camera* _camera; 
 

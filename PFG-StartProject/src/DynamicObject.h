@@ -49,6 +49,7 @@ public:
 	void ClearForces() { _force = glm::vec3(0.0f, 0.0f, 0.0f); }
 	void AddTorque(const glm::vec3 torque) { _torque += torque; }
 	void ClearTorque() { _torque = glm::vec3(0, 0, 0); }
+
 	void ComputeInverseIntertiaTensor();
 
 
@@ -80,6 +81,7 @@ public:
 	* @param glm::vec3 vel a 3D vector for the velocity of the object
 	*/
 	void SetVelocity(const glm::vec3 vel) { _velocity = vel; }
+	glm::vec3 GetVelocity() { return _velocity; }
 	/** Set scale for the object
 	* @param glm::vec3 vel a 3D vector for the scale of the object
 	*/

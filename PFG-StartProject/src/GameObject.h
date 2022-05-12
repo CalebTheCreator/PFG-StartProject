@@ -3,6 +3,7 @@
 
 #include "Mesh.h"
 #include "Material.h"
+#include "ObjectType.h"
 
 /*! \brief Brief description.
 *  GameObject class contains a mesh, a material, a position and an orientation information
@@ -72,6 +73,9 @@ public:
 	*/
 	virtual void Draw(glm::mat4 &viewMatrix, glm::mat4 &projMatrix);
 
+	void SetObjectType(ObjectType o) { type = o; }
+	ObjectType GetType() { return type; }
+
 protected:
 
 	/** The model geometry
@@ -102,6 +106,7 @@ protected:
 	*/
 	glm::vec3 _scale;
 
+	ObjectType type;
 };
 
 

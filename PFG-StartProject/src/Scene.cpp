@@ -8,7 +8,10 @@
 */
 Scene::Scene()
 {
-	std::string velocityData = ReadData("assets/ObjectVelocity/Velocity.txt");
+	std::string velocityData = Cleb::ReadData("assets/ObjectVelocity/Velocity.txt");
+	std::string velocityData2 = Cleb::ReadData("assets/ObjectVelocity/Velocity2.txt");
+	std::string velocityData3 = Cleb::ReadData("assets/ObjectVelocity/Velocity3.txt");
+	std::string velocityData4 = Cleb::ReadData("assets/ObjectVelocity/Velocity4.txt");
 
 	// Set up your scene here......
 	// Set a camera
@@ -25,20 +28,30 @@ Scene::Scene()
 	// Create a game object
 	_physics_object = new DynamicObject();
 	//glm::vec3 _v_i = glm::vec3(0.0f, 8.0f, 0.0f);
-	glm::vec3 _v_i = createVec3FromFile(velocityData);
+	glm::vec3 _v_i = Cleb::createVec3FromFile(velocityData);
 	_physics_object->SetVelocity(_v_i);
 
 	_second_physics_object = new DynamicObject();
-	glm::vec3 _v_i2 = glm::vec3(-2.0f, 0.0f, 0.0f);
+	//glm::vec3 _v_i2 = glm::vec3(-2.0f, 8.0f, 0.0f);
+	glm::vec3 _v_i2 = Cleb::createVec3FromFile(velocityData2);
+	_v_i2.x = -2;
 	_second_physics_object->SetVelocity(_v_i2);
 
+
+	_third_physics_object = new DynamicObject();
+	glm::vec3 _v_i3 = Cleb::createVec3FromFile(velocityData3);
+	_third_physics_object->SetVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+
+	_fourth_physics_object = new DynamicObject();
+	glm::vec3 _v_i4 = Cleb::createVec3FromFile(velocityData4);
+	_v_i3.x = -2;
+	_fourth_physics_object->SetVelocity(glm::vec3(0.0f, 0.0f, 0.0f));
+
 	//create another sphere
-	_new_Sphere = new GameObject();
+	//_new_Sphere = new GameObject();
 
 	// Create a game level object
 	_level = new GameObject();
-
-	Wall1 = new GameObject();
 
 	// Create the material for the game object- level
 	Material *modelMaterial = new Material();
@@ -67,8 +80,6 @@ Scene::Scene()
 	// Tell the level object to use this material
 	_level->SetMaterial(modelMaterial);
 
-	Wall1->SetMaterial(modelMaterial);
-
 	// The mesh is the geometry for the object
 	Mesh *groundMesh = new Mesh();
 	// Load from OBJ file. This must have triangulated geometry
@@ -77,10 +88,8 @@ Scene::Scene()
 	_level->SetMesh(groundMesh);
 	_level->SetPosition(0.0f, 0.0f, 0.0f);
 	_level->SetRotation(3.141590f, 0.0f, 0.0f);
+	_level->SetScale(4.0f, 4.0f, 4.0f);
 
-	Wall1->SetMesh(groundMesh);
-	Wall1->SetPosition(20.0f, 0.0f, 0.0f);
-	Wall1->SetRotation(0.0f, 90.0f, 0.0f);
 
 	// Create the material for the game object- level
 	Material *objectMaterial = new Material();
@@ -102,6 +111,10 @@ Scene::Scene()
 
 	_second_physics_object->SetMaterial(objectMaterial);
 
+	_third_physics_object->SetMaterial(objectMaterial);
+
+	_fourth_physics_object->SetMaterial(objectMaterial);
+	
 	// Set the geometry for the object
 	Mesh *modelMesh = new Mesh();
 	// Load from OBJ file. This must have triangulated geometry
@@ -111,8 +124,14 @@ Scene::Scene()
 
 	_second_physics_object->SetMesh(modelMesh);
 
-	glm::vec3 initial_position = glm::vec3(0.0f, 5.0f, 0.0f);
+	_third_physics_object->SetMesh(modelMesh);
+
+	_fourth_physics_object->SetMesh(modelMesh);
+
+	glm::vec3 initial_position = glm::vec3(-2.0f, 5.0f, 0.0f);
 	glm::vec3 Object2Position = glm::vec3(2.0f, 5.0f, 0.0f);
+	glm::vec3 Object3Position = glm::vec3(-2.0f, 5.0f, 3.0f);
+	glm::vec3 Object4Position = glm::vec3(2.0f, 5.0f, -3.0f);
 	glm::vec3 initial_scale = glm::vec3(0.3f, 0.3f, 0.3f);
 	float mass = 2.0f;
 	_physics_object->SetMass(mass);
@@ -125,10 +144,17 @@ Scene::Scene()
 	_second_physics_object->SetScale(initial_scale);
 	_second_physics_object->SetBoundingRadius(0.3f);
 
-	/**_new_Sphere->SetMesh(modelMesh);
-	_new_Sphere->SetPosition(5.0f, 5.0f, 0.0f);
-	_new_Sphere->SetScale(0.3f, 0.3f, 0.3f);*/
+	_third_physics_object->SetMass(mass);
+	_third_physics_object->SetPosition(Object3Position);
+	_third_physics_object->SetScale(initial_scale);
+	_third_physics_object->SetBoundingRadius(0.3f);
 
+	_fourth_physics_object->SetMass(mass);
+	_fourth_physics_object->SetPosition(Object4Position);
+	_fourth_physics_object->SetScale(initial_scale);
+	_fourth_physics_object->SetBoundingRadius(0.3f);
+
+	
 	
 }
 
@@ -137,9 +163,10 @@ Scene::~Scene()
 	// You should neatly clean everything up here
 	delete _physics_object;
 	delete _second_physics_object;
+	delete _third_physics_object;
+	delete _fourth_physics_object;
 	delete _level;
 	delete _camera;
-	delete Wall1;
 }
 
 void Scene::Update(float deltaTs, Input* input)
@@ -155,9 +182,14 @@ void Scene::Update(float deltaTs, Input* input)
 		_physics_object->StartSimulation(_simulation_start);
 
 		_second_physics_object->StartSimulation(_simulation_start);
-		//_physics_object->RungeKutta4(deltaTs);
 
-		/**glm::vec3 pos = _physics_object->GetPosition();
+		_third_physics_object->StartSimulation(_simulation_start);
+
+		_fourth_physics_object->StartSimulation(_simulation_start);
+
+		Cleb::BallCollision(_physics_object, _second_physics_object, deltaTs);
+
+		/*glm::vec3 pos = _physics_object->GetPosition();
 		//pos += glm::vec3(0.0, -deltaTs, 0.0);
 		glm::vec3 tempVelocity;
 		tempVelocity.y = _v_i.y + (-9.8) * deltaTs;
@@ -193,21 +225,24 @@ void Scene::Update(float deltaTs, Input* input)
 
 	_physics_object->Update(_level, deltaTs);
 	_second_physics_object->Update(_level, deltaTs);
+	_third_physics_object->Update(_level, deltaTs);
+	_fourth_physics_object->Update(_level, deltaTs);
 
 	_level->Update(deltaTs);
 	_camera->Update(input);
-
-	Wall1->Update(deltaTs);
-
-	
 
 	_viewMatrix = _camera->GetView();
 	_projMatrix = _camera->GetProj();
 
 	glm::vec3 contactPoint = _physics_object->GetPosition() - _second_physics_object->GetPosition();
 
-	PFG::SphereToSphereCollision(_physics_object->GetPosition(), _second_physics_object->GetPosition(),
-		_physics_object->GetBoundingRadius(), _second_physics_object->GetBoundingRadius(), contactPoint);
+	/**PFG::SphereToSphereCollision(_physics_object->GetPosition(), _second_physics_object->GetPosition(),
+		_physics_object->GetBoundingRadius(), _second_physics_object->GetBoundingRadius(), contactPoint);*/
+
+	/**if (_second_physics_object->GetPosition().x == 4)
+	{
+		_second_physics_object->SetPosition(glm::vec3(-3.0f, _second_physics_object->GetPosition().y, _second_physics_object->GetPosition().z));
+	}*/
 
 }
 
@@ -216,8 +251,14 @@ void Scene::Draw()
 	// Draw objects, giving the camera's position and projection
 	_physics_object->Draw(_viewMatrix, _projMatrix);
 	_second_physics_object->Draw(_viewMatrix, _projMatrix);
+	_third_physics_object->Draw(_viewMatrix, _projMatrix);
+	_fourth_physics_object->Draw(_viewMatrix, _projMatrix);
 	_level->Draw(_viewMatrix, _projMatrix);
-	Wall1->Draw(_viewMatrix, _projMatrix);
+
+}
+
+void Scene::DoCollisions()
+{
 
 }
 
