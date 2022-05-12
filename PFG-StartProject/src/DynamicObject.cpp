@@ -241,7 +241,7 @@ void DynamicObject::RungeKutta2(float deltaTs)
 	_position += _velocity * deltaTs;
 }
 
-void DynamicObject::RungeKutta4(float deltaTs)
+void DynamicObject::RungeKutta4(float deltaTs) //method to calculate matrix rotation and positional data
 {
 	glm::vec3 force;
 	glm::vec3 acceleration;
